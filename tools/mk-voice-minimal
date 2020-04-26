@@ -5,43 +5,7 @@ mkdir ${dir}/../voice-minimal
 cd ${dir}/../voice-minimal
 mkdir clips
 
-cat << EOF > list.txt
-0000   close shutters bed room
-0001   open door swimming pool
-0002   switch off ventilation terrace
-0003   halfway bed bath room
-0004   switch on plug table
-0005   switch on light garage
-0006   open ventilation kitchen
-0007   halfway light south
-0008   close plug north
-0009   switch off bed living room
-0010   halfway door office
-0011   open shutters swimming pool
-0012   switch on light south
-0013   switch off door terrace
-0014   close ventilation north
-0015   switch on plug bath room
-0016   open shutters kitchen
-0017   halfway bed bed room
-0018   switch off ventilation office
-0019   close shutters garage
-0020   open light living room
-0021   switch off door table
-0022   close plug terrace
-0023   halfway bed office
-0024   switch on ventilation table
-0025   switch off plug bed room
-0026   close door kitchen
-0027   switch on bed bath room
-0028   open light living room
-0029   halfway shutters south
-0030   switch off door swimming pool
-0031   halfway bed garage
-0032   open shutters north
-0033   close kitchen shutter
-0034   switch garage light on
-EOF
+python3 ${dir}/mk-voice-minimal-test1.py > list.txt
 
 while read n line; do
     f="$n-espeak.wav"
