@@ -99,7 +99,7 @@ if ! $noupdate; then
     mkdir -p kenlm/build
     cd kenlm/build
     cmake ..
-    make
+    make -j
 
     cd ${dir}
 
