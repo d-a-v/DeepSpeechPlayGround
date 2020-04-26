@@ -104,7 +104,7 @@ if ! $noupdate; then
     cd ${dir}
 
     python3 DeepSpeech/data/lm/generate_lm.py \
-        --input_txt ${src}/vocabulary.txt --output_dir . \
+        --input_txt ${dir}/${src}/vocabulary.txt --output_dir . \
         --top_k 500000 --kenlm_bins ${dir}/kenlm/build/bin \
         --arpa_order 5 --max_arpa_memory "85%" --arpa_prune "0|0|1" \
         --binary_a_bits 255 --binary_q_bits 8 --binary_type trie \
@@ -112,7 +112,7 @@ if ! $noupdate; then
         --discount_fallback \
 
     python3 DeepSpeech/data/lm/generate_package.py \
-        --alphabet ${tools}/alphabet.txt \
+        --alphabet ${dir}/${src}/alphabet.txt \
         --lm ${gen}/lm.binary \
         --vocab ${gen}/vocab-500000.txt \
         --default_alpha 0.75 \
@@ -120,7 +120,7 @@ if ! $noupdate; then
         --package ${gen}/scorerfile \
 
     cd DeepSpeech
-    python3 bin/import_cv2.py --validate_label_locale ${tools}/validation.py $(pwd)/../${src}
+    python3 bin/import_cv2.py --validate_label_locale ${tools}/validation.py ${dir}/${src}
 
 fi
 
@@ -131,23 +131,24 @@ mkdir -p ${checkpoint_dir} ${inference} ${inference}-lite
 # Train
 
 python3 -u DeepSpeech.py \
-    --alphabet_config_path ${tools}/alphabet.txt \
-    --train_files ../${src}/clips/train.csv \
-    --dev_files ../${src}/clips/dev.csv \
-    --test_files ../${src}/clips/test.csv \
+    --alphabet_config_path ${dir}/${src}/alphabet.txt \
+    --train_files ${dir}/${src}/clips/train.csv \
+    --dev_files ${dir}/${src}/clips/dev.csv \
+    --test_files ${dir}/${src}/clips/test.csv \
     --export_dir "${inference}" \
     --checkpoint_dir "${checkpoint_dir}" \
-    --reduce_lr_on_plateau \
     --scorer_path ${gen}/scorerfile \
+    --early_stop True \
+    2>&1 | tee ${gen}/inference.$$.log
 
-#    --early_stop True \
 #    --epochs 30 \
 #    --report_count 100 \
+#    --reduce_lr_on_plateau \
 
 # reexport for TFLite
 
 python3 -u DeepSpeech.py \
-    --alphabet_config_path ${tools}/alphabet.txt \
+    --alphabet_config_path ${dir}/${src}/alphabet.txt \
     --checkpoint_dir "${checkpoint_dir}" \
     --export_tflite \
     --export_dir "${inference}-lite" \

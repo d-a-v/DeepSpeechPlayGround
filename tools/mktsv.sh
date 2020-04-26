@@ -40,4 +40,6 @@ while read n line ; do
     done
 done < ../list.txt
 
-cut -d\  -f2- < ../list.txt > ../vocabulary.txt
+cd ..
+cut -d\  -f2- < list.txt > vocabulary.txt
+sed 's,\(.\),\1\n,g' < vocabulary.txt | grep -v '^$' | sort -u > alphabet.txt
