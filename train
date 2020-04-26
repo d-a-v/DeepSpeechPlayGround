@@ -7,10 +7,27 @@ set -e
 
 help ()
 {
-    echo "syntax: $1 [options]"
-    echo "options:"
+    cat << EOF
+
+syntax: $1 [options] [voice-directory]
+
+If not specified, an artifical voice directory "voice-minimal" is created
+(using espeak) and used for training.
+
+This project is a work-in-progress.
+
+options:
+EOF
     < $1 grep -v 'sed -ne' | sed -ne 's/[^#]* \([^ ]*\))[^#]*#\(.*\)/    \1\2/pg' 1>&2
+    echo ""
     exit 1
+}
+
+external ()
+{
+    apt -y install \
+        espeak lame # text to voice + encoding
+    exit $?
 }
 
 dir=$(cd ${0%/*} 2>/dev/null; pwd)
@@ -20,8 +37,9 @@ noupdate=false
 src="voice-minimal"
 while [ ! -z "$1" ]; do
     case "$1" in
-        -h|--help) help "$0";;  #       help
-        --noupdate) noupdate=true;;  #      skip updating env
+        -h|--help) help "$0";;      #       help
+        --external) external;;       #      install external tools
+        --noupdate) noupdate=true;;  #      skip updating trainer/python
         *) src="$1";;
     esac
     shift
