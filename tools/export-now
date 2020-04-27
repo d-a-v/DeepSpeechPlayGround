@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+
+dir=$(cd ${0%/*} 2>/dev/null; pwd)
+
+src=${dir##*gen-}
+
+if [ -z "${src}" ]; then
+    echo "run me from gen- directory"
+    exit 1
+fi
+
+cd ..
+. ./venv-enable
+cd DeepSpeech
+python3 -u DeepSpeech.py \
+    --alphabet_config_path ${dir}/../${src}/alphabet.txt \
+    --checkpoint_dir "${dir}/checkpoints" \
+    --export_dir "${dir}/inference" \
+    --scorer_path ${dir}/scorerfile \
+
+#    --export_tflite \
+

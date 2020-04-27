@@ -60,6 +60,7 @@ fi
 
 gen=${dir}/gen-${src}
 mkdir -p ${gen}
+ln -s ../tools/export-now ${gen}/
 
 # install missing packages on ubuntu
 pkg=""
@@ -138,12 +139,12 @@ python3 -u DeepSpeech.py \
     --export_dir "${inference}" \
     --checkpoint_dir "${checkpoint_dir}" \
     --scorer_path ${gen}/scorerfile \
-    --early_stop True \
+    --reduce_lr_on_plateau \
     2>&1 | tee ${gen}/inference.$$.log
 
+#    --early_stop True \
 #    --epochs 30 \
 #    --report_count 100 \
-#    --reduce_lr_on_plateau \
 
 # reexport for TFLite
 
