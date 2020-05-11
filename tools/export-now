@@ -3,7 +3,7 @@ set -e
 
 dir=$(cd ${0%/*} 2>/dev/null; pwd)
 
-src=${dir##*gen-}
+src=${dir#*gen-}
 
 if [ -z "${src}" ]; then
     echo "run me from gen- directory"

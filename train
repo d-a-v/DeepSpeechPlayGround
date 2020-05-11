@@ -36,7 +36,7 @@ dir=$(cd ${0%/*} 2>/dev/null; pwd)
 tools=${dir}/tools
 
 noupdate=false
-src="voice-minimal"
+src="gen-voice-minimal"
 while [ ! -z "$1" ]; do
     case "$1" in
         -h|--help) help "$0";;      #       help
@@ -50,7 +50,7 @@ done
 [ -z "${src}" ] && help "$0"
 
 if [ ! -d ${dir}/${src} ]; then
-    if [ "${src}" = voice-minimal ]; then
+    if [ "${src}" = gen-voice-minimal ]; then
         ${tools}/mk-voice-minimal
     else
         echo "cannot find input directory '${dir}/${src}'" 1>&2
@@ -60,6 +60,7 @@ fi
 
 gen=${dir}/gen-${src}
 mkdir -p ${gen}
+rm -f ${gen}/export-now
 ln -s ../tools/export-now ${gen}/
 
 # install missing packages on ubuntu
@@ -78,8 +79,8 @@ fi
 . ./venv-enable
 
 if [ ! -r DeepSpeech/DeepSpeech.py ]; then
-    #GIT_TRACE=1 git clone --depth=1 https://github.com/mozilla/DeepSpeech
-    GIT_TRACE=1 git clone --depth=1 https://github.com/d-a-v/DeepSpeech
+    GIT_TRACE=1 git clone --depth=1 https://github.com/mozilla/DeepSpeech
+    #GIT_TRACE=1 git clone --depth=1 https://github.com/d-a-v/DeepSpeech
 fi
 cd DeepSpeech
 export PYTHONPATH+=$(pwd)/training
@@ -96,9 +97,9 @@ if ! $noupdate; then
 
     cd ${dir}
     # download & build kenlm
-    git clone --depth=1 https://github.com/kpu/kenlm || (cd kenlm; git pull origin master)
-    mkdir -p kenlm/build
-    cd kenlm/build
+    git clone --depth=1 https://github.com/kpu/kenlm gen-kenlm || (cd gen-kenlm; git pull origin master)
+    mkdir -p gen-kenlm/build
+    cd gen-kenlm/build
     cmake ..
     make -j
 
@@ -106,7 +107,7 @@ if ! $noupdate; then
 
     python3 DeepSpeech/data/lm/generate_lm.py \
         --input_txt ${dir}/${src}/vocabulary.txt --output_dir . \
-        --top_k 500000 --kenlm_bins ${dir}/kenlm/build/bin \
+        --top_k 500000 --kenlm_bins ${dir}/gen-kenlm/build/bin \
         --arpa_order 5 --max_arpa_memory "85%" --arpa_prune "0|0|1" \
         --binary_a_bits 255 --binary_q_bits 8 --binary_type trie \
         --output_dir ${gen} \
@@ -126,8 +127,9 @@ if ! $noupdate; then
 fi
 
 checkpoint_dir=${gen}/checkpoints
+summary=${gen}/summary
 inference=${gen}/inference
-mkdir -p ${checkpoint_dir} ${inference} ${inference}-lite
+mkdir -p ${checkpoint_dir} ${inference} ${inference}-lite ${summary}
 
 # Train
 
@@ -138,12 +140,17 @@ python3 -u DeepSpeech.py \
     --test_files ${dir}/${src}/clips/test.csv \
     --export_dir "${inference}" \
     --checkpoint_dir "${checkpoint_dir}" \
+    --summary_dir "${summary}" \
     --scorer_path ${gen}/scorerfile \
-    --reduce_lr_on_plateau \
+    --learning_rate 0.0001 \
+    --dropout_rate 0.25 \
+    --epochs 150 \
+    --noearly_stop \
     2>&1 | tee ${gen}/inference.$$.log
 
-#    --early_stop True \
+#    --reduce_lr_on_plateau \
 #    --epochs 30 \
+#    --early_stop True \
 #    --report_count 100 \
 
 # reexport for TFLite

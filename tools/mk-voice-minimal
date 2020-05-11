@@ -1,11 +1,12 @@
 #!/bin/sh
 set -e
 dir=$(cd ${0%/*} 2>/dev/null; pwd)
-mkdir ${dir}/../voice-minimal
-cd ${dir}/../voice-minimal
+mkdir ${dir}/../gen-voice-minimal
+cd ${dir}/../gen-voice-minimal
 mkdir clips
 
-python3 ${dir}/mk-voice-minimal-test1.py > list.txt
+#python3 ${dir}/mk-voice-minimal-test1.py > list.txt
+${dir}/mk-voice-minimal-test2 < ${dir}/mk-voice-minimal-test2.txt > list.txt
 
 while read n line; do
     f="$n-espeak.wav"
