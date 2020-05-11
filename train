@@ -62,6 +62,8 @@ gen=${dir}/gen-${src}
 mkdir -p ${gen}
 rm -f ${gen}/export-now
 ln -s ../tools/export-now ${gen}/
+rm -f ${gen}/infer
+ln -s ../tools/infer ${gen}/
 
 # install missing packages on ubuntu
 pkg=""

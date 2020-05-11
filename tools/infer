@@ -1,0 +1,16 @@
+#!/bin/bash
+
+file="$1"
+if [ ! -f "${file}" ]; then
+    echo "audio not found '$f'"
+    exit 1
+fi
+
+dir=$(cd ${0%/*} 2>/dev/null; pwd)
+
+cd ..
+. ./venv-enable
+pip3 install --upgrade deepspeech
+
+cd ${dir}
+deepspeech --model ${dir}/inference/output_graph.pb --scorer ${dir}/scorerfile --audio ${file}
