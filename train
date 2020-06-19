@@ -26,8 +26,8 @@ EOF
 external ()
 {
     pkgs=""
-    pkgs+="espeak lame"                 # text to voice + encoding
-    pkgs+="sox libsox-fmt-mp3 git-lfs"  # once for all
+    pkgs+="espeak lame "                 # text to voice + encoding
+    pkgs+="sox libsox-fmt-mp3 git-lfs "  # once for all
     apt -y install $pkgs
     exit $?
 }
