@@ -26,8 +26,8 @@ EOF
 external ()
 {
     pkgs=""
-    pkgs+="espeak lame"                 # text to voice + encoding
-    pkgs+="sox libsox-fmt-mp3 git-lfs"  # once for all
+    pkgs+="espeak lame "                 # text to voice + encoding
+    pkgs+="sox libsox-fmt-mp3 git-lfs "  # once for all
     apt -y install $pkgs
     exit $?
 }
@@ -115,13 +115,14 @@ if ! $noupdate; then
         --output_dir ${gen} \
         --discount_fallback \
 
-    python3 DeepSpeech/data/lm/generate_package.py \
+    false python3 DeepSpeech/data/lm/generate_package.py \
         --alphabet ${dir}/${src}/alphabet.txt \
         --lm ${gen}/lm.binary \
         --vocab ${gen}/vocab-500000.txt \
         --default_alpha 0.75 \
         --default_beta 1.85 \
         --package ${gen}/scorerfile \
+    || true
 
     cd DeepSpeech
     python3 bin/import_cv2.py --validate_label_locale ${tools}/validation.py ${dir}/${src}
