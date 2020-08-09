@@ -115,15 +115,6 @@ if ! $noupdate; then
         --output_dir ${gen} \
         --discount_fallback \
 
-    false python3 DeepSpeech/data/lm/generate_package.py \
-        --alphabet ${dir}/${src}/alphabet.txt \
-        --lm ${gen}/lm.binary \
-        --vocab ${gen}/vocab-500000.txt \
-        --default_alpha 0.75 \
-        --default_beta 1.85 \
-        --package ${gen}/scorerfile \
-    || true
-
     cd DeepSpeech
     python3 bin/import_cv2.py --validate_label_locale ${tools}/validation.py ${dir}/${src}
 
@@ -144,7 +135,6 @@ python3 -u DeepSpeech.py \
     --export_dir "${inference}" \
     --checkpoint_dir "${checkpoint_dir}" \
     --summary_dir "${summary}" \
-    --scorer_path ${gen}/scorerfile \
     --learning_rate 0.0001 \
     --dropout_rate 0.25 \
     --epochs 150 \
